@@ -1,0 +1,235 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+var size = 1;     
+var green = "#39e735";
+var red = "#ff0808";
+var blue = "#0e4fd4";
+var black = "#111111";
+var clean = "rgba(0, 0, 0, 1.0)";
+var activate = false;
+var color = "#111111";
+
+
+$(document).ready( () => {
+
+    //context.drawImage(outlineImage, 0, 0, 300, 300);
+    $('#size1').click( () => { 
+        size = 1; 
+    });
+
+    $('#size2').click( () => { 
+        size = 5; 
+    });
+
+    $('#size3').click( () => { 
+        size = 10; 
+    });
+
+    $('#clean').click( () => {    
+        color = clean;
+        activate = true;		
+    });
+
+    $('.color').click( () => { 
+        activate = false; 
+    })
+    
+    $('#color1').click( () => { 
+        color = black; 
+    });
+
+    $('#color2').click( () => { 
+        color = green; 
+    });
+
+    $('#color3').click( () => { 
+        color = red; 
+    });
+
+    $('#color4').click( () =>{ 
+        color = blue; });
+    });
+  
+
+if(window.addEventListener)
+{    
+    window.addEventListener('load', () => {
+        var canvas, context, tool;
+        
+        var init = () => {
+            // Find the canvas element.
+            canvas = document.getElementById('mycanvas');
+            
+            if (!canvas)
+            {
+                alert('Error: I cannot find the canvas element!');
+                return;
+            }
+
+            if (!canvas.getContext)
+            {
+                alert('Error: no canvas.getContext!');
+                return;
+            }
+
+            // Get the 2D canvas context.
+            context = canvas.getContext('2d');
+
+            if (!context) {
+              alert('Error: failed to getContext!');
+              return;
+            }
+            
+            context.lineJoin = "round";
+            
+            // Pencil tool instance.
+            tool = new tool_pencil();
+
+            // Attach the mousedown, mousemove and mouseup event listeners.
+            canvas.addEventListener('mousedown', ev_canvas, false);
+            canvas.addEventListener('mousemove', ev_canvas, false);
+            canvas.addEventListener('mouseup',   ev_canvas, false);
+        }
+
+        // This painting tool works like a drawing pencil which tracks the mouse 
+        // movements.     
+        function tool_pencil () {
+            var tool = this;        
+            this.started = false;
+
+            // This is called when you start holding down the mouse button.
+            // This starts the pencil drawing.
+            this.mousedown = function (ev)
+            {
+                context.lineWidth = size;
+                context.lineTo(ev._x, ev._y);
+                context.globalCompositeOperation = "source-over";
+
+                if (activate)
+                {
+                    context.globalCompositeOperation = "destination-out";
+                }
+
+                context.strokeStyle = color;
+                context.beginPath();
+                context.arc(ev._x, ev._y, size/10, 0, 2 * Math.PI, false);
+                context.moveTo(ev._x, ev._y);
+                tool.started = true;
+            };
+
+            // This function is called every time you move the mouse. Obviously, it only 
+            // draws if the tool.started state is set to true (when you are holding down 
+            // the mouse button).
+            this.mousemove = function (ev)
+            {
+              if (tool.started)
+              {
+                context.lineTo(ev._x, ev._y);
+                context.stroke();
+              }
+            };
+
+            // This is called when you release the mouse button.
+            this.mouseup = function (ev)
+            {
+                if (tool.started)
+                {
+                    tool.mousemove(ev);
+                    tool.started = false;
+                }
+            };
+        }
+
+        // The general-purpose event handler. This function just determines the mouse 
+        // position relative to the canvas element.
+        var ev_canvas = (ev) => {
+            if (ev.layerX || ev.layerX == 0)
+            { // Firefox          
+                ev._x = ev.layerX;
+                ev._y = ev.layerY;
+            }
+            else if (ev.offsetX || ev.offsetX == 0) 
+            { // Opera              
+                ev._x = ev.offsetX;
+                ev._y = ev.offsetY;
+            }
+
+            // Call the event handler of the tool.
+            var func = tool[ev.type];
+            if (func) { func(ev); }
+        }
+
+  init();
+
+    }, false); 
+}
+
+/***/ })
+/******/ ]);
